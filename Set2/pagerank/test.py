@@ -1,13 +1,13 @@
-from pagerank import transition_model 
+from pagerank import sample_pagerank 
 
 corpus = {
     "1.html": {"2.html", "3.html"},
     "2.html": {"3.html"},
-    "3.html": {}
+    "3.html": {"2.html"}
 }
 
 def test_transition_model():
-    res = transition_model(corpus, '3.html', 0.85)
+    res = sample_pagerank(corpus, 0.85, 100000)
     print(res)
 
 

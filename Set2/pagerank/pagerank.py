@@ -62,9 +62,8 @@ def transition_model(corpus, page, damping_factor):
     if num_links > 0:
  
         prob = {
-            link: 
-            (1 - damping_factor) /
-            len(corpus)
+            link: (1 - damping_factor) /
+                    len(corpus)
             
             for link in corpus
         }
@@ -74,6 +73,7 @@ def transition_model(corpus, page, damping_factor):
     else:
         prob = {
             link: 1 / len(corpus) 
+            
             for link in corpus
         }
 
@@ -102,13 +102,12 @@ def sample_pagerank(corpus, damping_factor, n):
         prob = transition_model(corpus, start_page, damping_factor)
         
         start_page = random.choices(
-            list(prob.keys()), 
-            weights=prob.values(), 
-            k=1
-            )[0]
+            list(prob.keys()), weights=prob.values(), 
+            k=1)[0]
 
     return {
         page: page_visits[page] / n 
+        
         for page in corpus
     }
     

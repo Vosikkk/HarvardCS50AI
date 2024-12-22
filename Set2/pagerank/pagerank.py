@@ -61,12 +61,21 @@ def transition_model(corpus, page, damping_factor):
     num_links = len(corpus[page]) 
     if num_links > 0:
  
-        prob = {link: (1 - damping_factor) / len(corpus) for link in corpus}
+        prob = {
+            link: 
+            (1 - damping_factor) /
+            len(corpus)
+            
+            for link in corpus
+        }
         
         for link in corpus[page]:
-            prob[link] += damping_factor / num_links 
+            prob[link] += damping_factor / num_links
     else:
-        prob = {link: 1 / len(corpus) for link in corpus}
+        prob = {
+            link: 1 / len(corpus) 
+            for link in corpus
+        }
 
     return prob    
 
@@ -87,11 +96,21 @@ def sample_pagerank(corpus, damping_factor, n):
     page_visits = defaultdict(int)
 
     for _ in range(n):
+        
         page_visits[start_page] += 1
+        
         prob = transition_model(corpus, start_page, damping_factor)
-        start_page = random.choices(list(prob.keys()), weights=prob.values(), k=1)[0]
+        
+        start_page = random.choices(
+            list(prob.keys()), 
+            weights=prob.values(), 
+            k=1
+            )[0]
 
-    return {page: page_visits[page] / n for page in corpus}
+    return {
+        page: page_visits[page] / n 
+        for page in corpus
+    }
     
 
 def iterate_pagerank(corpus, damping_factor):
@@ -103,7 +122,59 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    total_pages = len(corpus)
+    
+    page_rank = {
+        page: 1 / total_pages
+        for page in corpus
+    }
+    
+    
+    
+    while True:
+
+        new_page_rank = {}
+        
+        # Calculate sum of all ranks of empty pages
+        rank_leak = sum(
+            page_rank[page] 
+            for page in corpus 
+            if not corpus[page]
+        )
+        
+        # Calculate how many rank they give for each page 
+        # As we know, empty page has links for all pages 
+        rank_leak_contrib = damping_factor * rank_leak / total_pages
+
+        for page in corpus:
+            
+            new_rank = (
+                ((1 - damping_factor) / 
+                total_pages) + 
+                rank_leak_contrib
+            )
+            
+            for other_page in corpus:
+                
+                if page in corpus[other_page]:
+                    new_rank += (
+                        damping_factor * page_rank[other_page] / 
+                        len(corpus[other_page])
+                    )
+        
+            new_page_rank[page] = new_rank
+
+            
+        if all(
+            abs(new_page_rank[page] - page_rank[page]) < 0.001
+            for page in corpus
+        ):
+            break
+
+    
+        page_rank = new_page_rank
+
+    return page_rank
 
 
 if __name__ == "__main__":

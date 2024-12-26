@@ -7,7 +7,4 @@ people = {
   'Lily': {'name': 'Lily', 'mother': None, 'father': None, 'trait': False}
 }
 
-res = heredity.joint_probability(people, {"Harry"}, {"James"}, {"James"})
 
-
-print(res)

@@ -53,8 +53,8 @@ def main():
                 0: 0
             },
             "trait": {
-                True: 0,
-                False: 0
+                True: 0, # 0.1  
+                False: 0 # 0.3 sum 0.4  
             }
         }
         for person in people
@@ -169,9 +169,52 @@ def joint_probability(people, one_gene, two_genes, have_trait):
     return probability
 
 
+def update(probabilities, one_gene, two_genes, have_trait, p):
+    """
+    Add to `probabilities` a new joint probability `p`.
+    Each person should have their "gene" and "trait" distributions updated.
+    Which value for each distribution is updated depends on whether
+    the person is in `have_gene` and `have_trait`, respectively.
+    """
+    
+    for person in probabilities:
+
+        probabilities[person]["gene"][
+            copy_of_gene(person, one_gene, two_genes)
+        ] += p
+        
+        probabilities[person]["trait"][person in have_trait] += p 
+
+        
+
+def normalize(probabilities):
+    """
+    Update `probabilities` such that each probability distribution
+    is normalized (i.e., sums to 1, with relative proportions the same).
+    """
+    for person in probabilities:
+        normalize_distribution(probabilities[person]["gene"])
+        normalize_distribution(probabilities[person]["trait"])
+
+
+
+def normalize_distribution(distribution):
+    """
+    Normalize a single probability distribution such that its values sum to 1.
+    """
+
+    total = sum(distribution.values())
+
+    for key in distribution:
+        distribution[key] /= total
+
+
 
 def gene_probability(dad, mom, g):
-    
+    """
+    Calculates the probability that a child will have a specific number of gene copies. 
+    """
+
     prob = 0
 
     if g == 2:
@@ -184,10 +227,11 @@ def gene_probability(dad, mom, g):
     return prob
     
 
-               
-
 
 def inheritance_probability(parent, one_gene, two_gene):
+    """
+    Calculates the probability that a parent passes a gene to their child.
+    """
     
     prob = 0
 
@@ -204,9 +248,10 @@ def inheritance_probability(parent, one_gene, two_gene):
     
     
 
-
-            
 def copy_of_gene(person, one, two):
+    """
+    Determines how many copies of a gene a person has.
+    """
 
     gene = 0
 
@@ -218,24 +263,6 @@ def copy_of_gene(person, one, two):
 
     return gene    
 
-
-
-def update(probabilities, one_gene, two_genes, have_trait, p):
-    """
-    Add to `probabilities` a new joint probability `p`.
-    Each person should have their "gene" and "trait" distributions updated.
-    Which value for each distribution is updated depends on whether
-    the person is in `have_gene` and `have_trait`, respectively.
-    """
-    raise NotImplementedError
-
-
-def normalize(probabilities):
-    """
-    Update `probabilities` such that each probability distribution
-    is normalized (i.e., sums to 1, with relative proportions the same).
-    """
-    raise NotImplementedError
 
 
 if __name__ == "__main__":

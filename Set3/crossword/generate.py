@@ -137,7 +137,6 @@ class CrosswordCreator():
             self.domains[x].difference_update(to_remove)
             revised = True
 
-      
         return revised    
 
 
@@ -150,7 +149,36 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        if arcs is None:
+            arcs = []
+            for x in self.crossword.variables:
+                for y in self.crossword.neighbors(x):
+                    arcs.append((x, y))
+            
+        return self.process_arcs(arcs)    
+
+
+
+    def process_arcs(self, arcs):
+        
+        from collections import deque
+
+        queue = deque(arcs)
+
+        while queue:
+            
+            x, y = queue.popleft()
+
+            if self.revise(x, y):
+                
+                if not self.domains[x]:
+                    return False
+                
+                for z in self.crossword.neighbors(x) - {y}:
+                   queue.append((z, x))
+
+        return True    
+
 
     def assignment_complete(self, assignment):
         """

@@ -162,7 +162,7 @@ class CrosswordCreator():
     def process_arcs(self, arcs):
         
         from collections import deque
-
+        
         queue = deque(arcs)
 
         while queue:
@@ -192,7 +192,44 @@ class CrosswordCreator():
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
-        raise NotImplementedError
+       
+        if len(assignment.values()) != len(set(assignment.values())):
+            return False
+
+        for var in assignment:
+
+            if (
+                len(assignment[var]) != var.length or 
+                self.conflict_with_neighbors(var, assignment)
+            ):
+                return False  
+            
+                        
+        return True    
+    
+
+    def conflict_with_neighbors(self, variable, assignment):
+        """
+        Сheck if `variable` conflicts with its neighbors in `assignment`.
+        """
+        
+        for neighbor in self.crossword.neighbors(variable):
+                    
+                if neighbor not in assignment:
+                    continue 
+
+                overlap = self.crossword.overlaps[variable, neighbor]
+                    
+                if overlap:
+    
+                    if (
+                        assignment[variable][overlap[0]] != 
+                        assignment[neighbor][overlap[1]]
+                    ):
+                        return True 
+        
+        return False
+
 
     def order_domain_values(self, var, assignment):
         """

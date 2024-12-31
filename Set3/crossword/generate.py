@@ -119,7 +119,7 @@ class CrosswordCreator():
         revised = False
         overlap = self.crossword.overlaps[x, y]
         
-        if not overlap:
+        if overlap is None:
             return revised
         
         i, j = overlap
@@ -132,7 +132,8 @@ class CrosswordCreator():
                 for word_y in self.domains[y]
             )
         }
-           
+
+        
         if to_remove:
             self.domains[x].difference_update(to_remove)
             revised = True
@@ -164,7 +165,7 @@ class CrosswordCreator():
         from collections import deque
         
         queue = deque(arcs)
-
+       
         while queue:
             
             x, y = queue.popleft()
@@ -186,6 +187,7 @@ class CrosswordCreator():
         crossword variable); return False otherwise.
         """
         return all(var in assignment for var in self.crossword.variables)
+
 
     def consistent(self, assignment):
         """
@@ -267,7 +269,31 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        raise NotImplementedError
+        if self.assignment_complete(assignment):
+            return assignment
+        
+        var = self.select_unassigned_variable(assignment)
+
+        for value in self.order_domain_values(var, assignment):
+
+            new_assignment = assignment.copy()
+            new_assignment[var] = value
+
+            if self.consistent(new_assignment):  
+                
+                if self.ac3([(var, neighbor) for neighbor in self.crossword.neighbors(var)]):
+                    result = self.backtrack(new_assignment)
+
+                    if result is not None:
+                        return result
+                
+        return None
+
+
+
+
+        
+
     
     
     

@@ -195,7 +195,7 @@ class CrosswordCreator():
        
         if len(assignment.values()) != len(set(assignment.values())):
             return False
-
+        
         for var in assignment:
 
             if (
@@ -216,24 +216,27 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        lcv = []
-
-        for value in self.domains[var]:
-            
-            conflicts = 0
-            
-            for neighbor in self.crossword.neighbors(var):
-                
-                if neighbor not in assignment:
-
-                       for neighbor_value in self.domains[neighbor]:
-                       
-                           if not self.is_consistent_overlap(var, value, neighbor, neighbor_value):
-                               conflicts += 1
-            
-            lcv.append((value, conflicts))
         
-                         
+        def count_conflicts(value):
+            return sum(
+                sum(
+                    not self.check_overlap_consistency(
+                        value, neighbor_value, 
+                        overlap
+                    )
+                    for neighbor_value in self.domains[neighbor]
+                )
+                
+                for neighbor in self.crossword.neighbors(var)
+                
+                if neighbor not in assignment and 
+                   (overlap := self.crossword.overlaps[var, neighbor])
+            )
+
+        
+            
+        lcv = [(value, count_conflicts(value)) for value in self.domains[var]]    
+        
         return [value for value, _ in sorted(lcv, key=lambda item: item[1])] 
 
 
@@ -261,43 +264,30 @@ class CrosswordCreator():
     
     
     
-    def is_consistent_overlap(self, var, value, neighbor, neighbor_value):
+    def check_overlap_consistency(self, value, neighbor_value, overlap):
         """
         Check if the overlap between var and neighbor is consistent.
         """
         
-        overlap = self.crossword.overlaps[var, neighbor]
-
-        if overlap:
-            if value[overlap[0]] != neighbor_value[overlap[1]]:
-                return False
-        
-        return False
-    
-
+        return value[overlap[0]] == neighbor_value[overlap[1]]
+                
 
     
     def conflict_with_neighbors(self, variable, assignment):
         """
         Check if `variable` conflicts with its neighbors in `assignment`.
         """
-        
-        for neighbor in self.crossword.neighbors(variable):
-                    
-                if neighbor not in assignment:
-                    continue 
 
-                if (
-                    not self.is_consistent_overlap(
-                        variable, 
+        return any(
+            (overlap := self.crossword.overlaps[variable, neighbor]) and
+            neighbor in assignment and  
+            not self.check_overlap_consistency(
                         assignment[variable], 
-                        neighbor, 
-                        assignment[neighbor]
-                        )
-                    ):
-                        return True 
-        
-        return False
+                        assignment[neighbor],
+                        overlap
+                    )
+            for neighbor in self.crossword.neighbors(variable)        
+        )
 
 
 def main():

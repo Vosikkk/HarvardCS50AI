@@ -1,5 +1,5 @@
 import sys
-
+import math
 from crossword import *
 
 
@@ -233,8 +233,6 @@ class CrosswordCreator():
                    (overlap := self.crossword.overlaps[var, neighbor])
             )
 
-        
-            
         lcv = [(value, count_conflicts(value)) for value in self.domains[var]]    
         
         return [value for value, _ in sorted(lcv, key=lambda item: item[1])] 
@@ -249,7 +247,16 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        raise NotImplementedError
+        
+        def heuristic(var):
+            return (len(self.domains[var]), -(len(self.crossword.neighbors(var))))  
+
+        unassigned_value = [
+            var for var in self.crossword.variables if var not in assignment
+        ]           
+
+        return min(unassigned_value, key=heuristic, default=None)            
+                
 
     def backtrack(self, assignment):
         """
@@ -282,10 +289,10 @@ class CrosswordCreator():
             (overlap := self.crossword.overlaps[variable, neighbor]) and
             neighbor in assignment and  
             not self.check_overlap_consistency(
-                        assignment[variable], 
-                        assignment[neighbor],
-                        overlap
-                    )
+                    assignment[variable], 
+                    assignment[neighbor],
+                    overlap
+                )
             for neighbor in self.crossword.neighbors(variable)        
         )
 

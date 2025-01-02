@@ -291,11 +291,6 @@ class CrosswordCreator():
 
 
 
-
-        
-
-    
-    
     
     def check_overlap_consistency(self, value, neighbor_value, overlap):
         """

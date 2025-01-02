@@ -3,6 +3,7 @@ import sys
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix
 
 TEST_SIZE = 0.4
 
@@ -81,7 +82,11 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
+    model = KNeighborsClassifier(n_neighbors=1)
+
+    model.fit(evidence, labels)
+
+    return model 
 
 
 def evaluate(labels, predictions):
@@ -99,7 +104,24 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+   
+    tn, fp, tp, fn = 0, 0, 0, 0
+
+    for actual, predicted in zip(labels, predictions):
+
+        if actual == 1 and predicted == 1:
+            tp += 1
+        elif actual == 1 and predicted == 0:
+            fn += 1
+        elif actual == 0 and predicted == 0:
+            tn += 1
+        elif actual == 0 and predicted == 1:
+            fp += 1
+
+    sensitivity = tp / (tp + fn) if (tp + fn > 0) else 0.0
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+    
+    return (sensitivity, specificity)
 
 
 def parse_boolean(value):

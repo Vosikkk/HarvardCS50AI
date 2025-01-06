@@ -140,7 +140,7 @@ venv.bak/
 # mkdocs documentation
 /site
 
-/gtsrb
+Set5/traffic/gtsrb/
 
 # mypy
 .mypy_cache/
